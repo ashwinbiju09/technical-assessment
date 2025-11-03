@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true); // toggle login/signup
@@ -38,24 +39,44 @@ const AuthForm = () => {
   };
 
   // Handle form submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const API_URL = "http://localhost:5000/api/auth";
+
     if (isLogin) {
-      // Dummy login check (replace with actual API call)
-      if (
-        formData.email === "user@example.com" &&
-        formData.password === "123456"
-      ) {
-        alert("Login successful!");
+      try {
+        const res = await axios.post(`${API_URL}/login`, {
+          email: formData.email,
+          password: formData.password,
+        });
+
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("username", res.data.username);
+        console.log(res.data);
+
+        alert(`Welcome back, ${res.data.email}!`);
         setFormData({ email: "", password: "", confirmPassword: "" });
-      } else {
-        setLoginError("Please check your credentials");
+      } catch (err) {
+        setLoginError(
+          err.response?.data?.msg || "Invalid credentials. Please try again."
+        );
       }
     } else {
       if (validateSignup()) {
-        alert(`Registered successfully with email: ${formData.email}`);
-        setFormData({ email: "", password: "", confirmPassword: "" });
+        try {
+          const res = await axios.post(`${API_URL}/signup`, {
+            email: formData.email,
+            password: formData.password,
+          });
+          alert(`Registered successfully with email: ${formData.email}`);
+          setFormData({ email: "", password: "", confirmPassword: "" });
+          setIsLogin(true);
+        } catch (err) {
+          alert(
+            err.response?.data?.msg || "Registration failed. Please try again."
+          );
+        }
       }
     }
   };
