@@ -1,5 +1,6 @@
+/* eslint-env jest */
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import AuthForm from "../components/AuthForm";
 import "@testing-library/jest-dom";
