@@ -54,4 +54,16 @@ router.post("/save", auth, async (req, res) => {
   }
 });
 
+// Get user's saved weather data
+router.get("/history", auth, async (req, res) => {
+  try {
+    const weatherData = await Weather.find({ userId: req.userId }).sort({
+      createdAt: -1,
+    });
+    res.json(weatherData);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

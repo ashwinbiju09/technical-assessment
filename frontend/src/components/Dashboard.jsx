@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import domtoimage from "dom-to-image-more";
 
@@ -9,16 +9,30 @@ function Dashboard() {
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [history, setHistory] = useState([]);
   const weatherRef = useRef(null);
 
-  const mockHistory = Array(5).fill({
-    city: "London",
-    description: "Clear Sky",
-    temperature: 23,
-    humidity: 45,
-    windSpeed: 3.4,
-    createdAt: new Date(),
-  });
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const fetchHistory = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/api/weather/history",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      console.log("Fetched history:", response.data);
+      setHistory(response.data); // Save to state
+    } catch (err) {
+      console.error("Error fetching history:", err);
+    }
+  };
 
   const fetchWeatherData = async () => {
     if (!city.trim()) return;
@@ -66,8 +80,7 @@ function Dashboard() {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        console.log("Saved data:", response.data);
-        alert("Weather data saved successfully!");
+        fetchHistory();
       };
 
       reader.readAsDataURL(blob); // converts blob to base64
@@ -79,6 +92,11 @@ function Dashboard() {
     setSaving(false);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/";
+  };
+
   return (
     <div className=" flex flex-col items-center px-4 py-10 space-y-8">
       {/* Main Container */}
@@ -87,8 +105,10 @@ function Dashboard() {
         <div className="flex justify-between items-center border-b border-gray-200 pb-4">
           <h1 className="text-3xl font-extrabold text-gray-900">Weather App</h1>
           <div className="flex items-center gap-4">
-            <span className="text-gray-700 font-medium">Welcome, User</span>
-            <button className="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-500 transition-all shadow-md">
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-500 transition-all shadow-md"
+            >
               Logout
             </button>
           </div>
@@ -162,7 +182,7 @@ function Dashboard() {
 
         {/* History Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {mockHistory.map((item, index) => (
+          {history.map((item, index) => (
             <div
               key={index}
               className="flex items-center bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all p-6 gap-6"
@@ -170,9 +190,9 @@ function Dashboard() {
               {/* Weather Image */}
               <div className="shrink-0">
                 <img
-                  src={item.imageUrl || "https://via.placeholder.com/100"}
+                  src={item.screenshotUrl || "https://via.placeholder.com/100"}
                   alt={item.city}
-                  className="w-40 h-40 object-cover rounded-2xl"
+                  className="w-90 h-40 object-contain rounded-2xl"
                 />
               </div>
 
