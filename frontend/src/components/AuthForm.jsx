@@ -52,7 +52,6 @@ const AuthForm = () => {
         });
 
         localStorage.setItem("token", res.data.token);
-        localStorage.setItem("username", res.data.username);
         console.log(res.data);
 
         alert(`Welcome back, ${res.data.email}!`);
