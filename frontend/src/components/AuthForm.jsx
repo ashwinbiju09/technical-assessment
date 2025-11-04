@@ -1,15 +1,20 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true); // toggle login/signup
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
   });
+
   const [errors, setErrors] = useState({});
   const [loginError, setLoginError] = useState(""); // For login failure
+
+  const navigate = useNavigate();
 
   // Handle input changes
   const handleChange = (e) => {
@@ -52,10 +57,8 @@ const AuthForm = () => {
         });
 
         localStorage.setItem("token", res.data.token);
-        console.log(res.data);
-
-        alert(`Welcome back, ${res.data.email}!`);
         setFormData({ email: "", password: "", confirmPassword: "" });
+        navigate("/dashboard");
       } catch (err) {
         setLoginError(
           err.response?.data?.msg || "Invalid credentials. Please try again."
