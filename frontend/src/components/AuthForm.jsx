@@ -78,6 +78,7 @@ const AuthForm = () => {
           alert(
             err.response?.data?.msg || "Registration failed. Please try again."
           );
+          console.log("Signup error:", err);
         }
       }
     }

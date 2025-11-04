@@ -27,7 +27,6 @@ function Dashboard() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log("Fetched history:", response.data);
       setHistory(response.data); // Save to state
     } catch (err) {
       console.error("Error fetching history:", err);
@@ -79,7 +78,8 @@ function Dashboard() {
           { ...weatherData, screenshot },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-
+        setCity("");
+        setWeatherData(null);
         fetchHistory();
       };
 
